@@ -16,9 +16,33 @@ public class Test {
 		
 		//Obtain the list of network interfaces
 		NetworkInterface[] devices = JpcapCaptor.getDeviceList();
-		//System.out.println(devices.length);
+		if(devices.length==0){
+			System.out.println("No hay interfaces visibles, probablemente necesite permisos apropiados");
+			return;
+		}
+		if(args.length==0){
+			for (int i = 0; i < devices.length; i++) {
+				  //print out its name and description
+				  System.out.println(i+": "+devices[i].name + "(" + devices[i].description+")");
+
+				  //print out its datalink name and description
+				  System.out.println(" datalink: "+devices[i].datalink_name + "(" + devices[i].datalink_description+")");
+
+				  //print out its MAC address
+				  System.out.print(" MAC address:");
+				  for (byte b : devices[i].mac_address)
+				    System.out.print(Integer.toHexString(b&0xff) + ":");
+				  System.out.println();
+
+				  //print out its IP address, subnet mask and broadcast address
+				  for (NetworkInterfaceAddress a : devices[i].addresses)
+				    System.out.println(" address:"+a.address + " " + a.subnet + " "+ a.broadcast);
+				}
+			System.out.println("uso:%java Test n\n n= interfaz a sniffear"); 
+			return;
+		}
 		//for each network interface
-		int index=0;
+		int index=Integer.parseInt(args[0]);
 		JpcapCaptor captor=JpcapCaptor.openDevice(devices[index], 65535, false, 20);
 		captor.setFilter("ip and tcp", true);
 		Packet packet;
