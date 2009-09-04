@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
 
     /* Define the device */
     dev = pcap_lookupdev(errbuf);
+    dev = "wlan0";
     if (dev == NULL) {
             fprintf(stderr, "Couldn't find default device: %s\n", errbuf);
             return(2);
@@ -41,6 +42,10 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Couldn't install filter %s: %s\n", filter_exp, pcap_geterr(handle));
             return(2);
     }
+    unsigned short src_port, dst_port;
+    unsigned int src_ip, dst_ip;
+    char iphosts[8];
+    char ports[4];
     /* Grab a packet */
     while(1){
         size_t offset=Ethernet_len;
@@ -52,10 +57,23 @@ int main(int argc, char *argv[])
         int i=0;
         char ip_len = packet[offset]&0x0f;
         //printf("ip len=%x\n",(int)ip_len);
+	for(i=0;i<8;i++){
+		iphosts[7-i]=packet[offset+i+12];
+	}
+	src_ip=((int*)iphosts)[1];
+	dst_ip=((int*)iphosts)[0];
+        printf("src=%x dst=%x\n",src_ip,dst_ip);
         offset+=ip_len*4;
+	for(i=0;i<4;i++){
+		ports[3-i]=packet[offset+i];
+	}
+	src_port=((short*)ports)[1];
+	dst_port=((short*)ports)[0];
+        printf("src=%u dst=%hu\n",src_port,dst_port);
+        printf("src=%x dst=%x\n",src_port,dst_port);
         char tcp_len = packet[offset+12]>>4;
         //printf("tcp len=%x\n",(int)tcp_len);
-        mf=(packet[offset+3]>>5)&0x01;
+        int mf=(packet[offset+3]>>5)&0x01;
         offset+=tcp_len*4;
         if(offset<header.len && !mf)
             printf("\n");
