@@ -12,48 +12,97 @@
 \begin{document}
 \maketitle
 \section{Introducci\'on}
-El proyecto denominado MailSnatcher, consiste en capturar y desplegar los
-correos electr\'onicos que sean enviados usando un canal inseguro en una red
-wireless.
+
+El proyecto denominado MailSnatcher, consiste en el desarrollo de una
+aplicación que se encarga de capturar y desplegar el correo electr\'onico
+accedido de forma insegura, ya sea para enviar o recibir. En particular, los
+esfuerzos se concentrar\'an en comunicaci\'on mediante redes inal\'ambricas
+inseguras, dentro de las cuales los usuarios no utilicen servicios que cuenten
+con encriptaci\'on de datos.
+
+El prop\'osito de este desarrollo es el de mostrarle a los usuarios que no se
+preocupan por utilizar canales seguros por los cuales transmitir datos
+personales, lo f\'acil que es capturarlos. El objetivo del uso de esta
+aplicación no es la de robarle los datos a los usuarios para humillarlos y/o
+extorsionarlos, sino que para generar consciencia con respecto a la seguridad
+de datos.
+
 \section{Funcionalidades Esperadas}
-El sistema, debe ser capaz de desplegar los mails le\'idos usando la mayor
-cantidad de protocolos posibles. En particular se pretende poder leer en orden:
+
+El sistema, debe ser capaz de desplegar el correo accedido por alg\'un usuario
+en la red, abarcando la mayor cantidad de maneras de leer correo que existen
+en la actualidad. Para este proyecto, se considerar\'an las siguientes maneras
+al momento de capturar mensajes,
+
 \begin{itemize}
 \item POP
 \item SMTP
 \item IMAP
-\item HTTP (hotmail y gmail)
+\item HTTP (Hotmail y GMail)
 \end{itemize} 
-El orden original se decidi\'o por la dificultad de comprender cada protocolo. 
-Se est\'a considerando intentar leer hotmail y gmail antes que SMTP e IMAP,
-pues son m\'as usados, y generar'ian un mayor impacto.
+
+El orden original se decidi\'o por la dificultad de comprender cada protocolo.
+Se est\'a considerando intentar desarrollar la funcionalidad de leer mensajes
+recibidos o enviados a los servidores de Hotmail y GMail mediante HTTP antes
+que SMTP e IMAP, pues son m\'as usados, y generar'ian un mayor impacto, lo
+cual está más cercano a los objetivos principales del proyecto.
+
 \section{Dise\~no Preliminar}
-Se pretende usar un dise\~no orientado a objetos. Existe un primer objeto
-Capturador, que interactuar\'a con pcap y su funci\'on ser\'a obtener los
-paquetes enviados (filtrados mediante el puerto, as\'i 110 ser\'a POP, 80
-ser\'a HTML, etc) y armar un objeto Mensaje, el que contendr\'a la IP y el
-puerto tando del emisor como del receptor (estos son los identificadores).
-Desde el objeto Mensaje se heredar\'an MensajePop, MensajeHTTP, y as\'i para
-cada uno de los protocolos que se implementen.
+
+Se pretende usar un dise\~no orientado a objetos para la aplicación.
+
+El primer paso de captura de paquetes consiste en controlar todo lo que fluye
+por la red escogida. Para capturar bytes en bruto desde la red se utiliza la
+biblioteca \textsf{pcap}, una biblioteca dise\~nada para la captura de
+paquetes (como indica su nombre, una abreviaci\'on de \emph{packet capture}).
+
+El objeto que se encarga de interactuar con \textsf{pcap} se llama
+\textsf{Capturador}, y su funci\'on es la de  obtener los paquetes enviados.
+Inmediatamente posterior a esto se procede a filtrar los paquetes para
+solamente dejar pasar a los que transporten datos de los protocolos deseados.
+Este filtro se planea hacer en base al puerto TCP utilizado para la conexión
+(as\'i 110 ser\'a POP, 80 ser\'a HTML, etc.).
+
+Luego se crea un objeto \textsf{Mensaje}, que contiene la direcci\'on IP y el
+puerto TCP de tanto el emisor como el receptor del mensaje, con los cuales se
+puede identificar la conversaci\'on. Este objeto se pretende que sea
+abstracto, y que sus clases heredadas implementen protocolos particulares,
+para as\'i formar las clases tales como \textsf{MensajeHTTP}.
+
 \section{Trabajo realizado}
-Hasta ahora, se ha estado investigando los protocolos y la librer\'ia y 
-tambi\'en desarrollando.
+
+Hasta ahora, se han estado investigando los protocolos que se tratar\'an, y la
+biblioteca que se usar\'a. Se ha logrado desarrollar peque\~nos m\'etodos de
+prueba, que funcionan como base para el trabajo que seguir\'a durante el resto
+del semestre.
+
 \subsection{Investigaci\'on}
-Se probaron las librer\'ias jpcap y jnetpcap para hacer el desarrollo en Java,
-\'estas hacen uso de pcap mediante JNI, y lamentablemente no funcionan para 
-procesadores de 64 bits (que es el equipo con que se cuenta), por lo que 
-finalmente se decidi\'o usar simplemente pcap y desarrollar en c++.
 
-Adem\'as se investig\'o principalmente el protocolo POP, adem\'as se investig'o
-el protocolo HTTP, para dimensionar las dificultades involucradas. Adem\'as se
-revisaron los protocolos ethernet, IP y TCP, para poder obtener la
-informaci\'on relevante del paquete.
+Se probaron las bibliotecas \textsf{jpcap} y \textsf{jnetpcap} para hacer el
+desarrollo en Java, \'estas hacen uso de \textsf{pcap} mediante JNI.
+Lamentablemente, \'estas no funcionan en arquitecturas de 64 bits, lo cual
+dificulta el desarrollo, ya que la programaci\'on se har\'a en equipos de
+estas especificaciones. Por esta raz\'on, se opt\'o por usar directamente las
+bibliotecas de \textsf{pcap}, programando en C++.
+
+Adicionalmente se ha investigado el protocolo POP, y se ha logrado identificar
+la estructura b\'asica de las sesiones de este protocolo. Tambi\'en adem\'as
+se ha investigado  el protocolo HTTP para dimensionar las dificultades
+involucradas. En particular, se ha intentado analizar el esquema de la
+comunicaci\'on usada por los servidores de correo por HTTP que se desean
+considerar. Adem\'as se revisaron los protocolos Ethernet, IP y TCP, para
+poder obtener la informaci\'on relevante de cada paquete capturado.
+
 \subsection{Desarrollo}
-Hasta ahora, se ha desarrollado gran parte del capturador, se prob\'o
-capturando paquetes POP y funciona. Despliega la IP, puerto (tanto del enviador
-como del receptor) y el contenido del mensaje (el comando o la respuesta).
 
-A continuaci\'on un ejemplo de captura de una sesi\'on POP.
+Hasta ahora, se ha desarrollado gran parte del capturador, se prob\'o
+capturando paquetes POP y se ha logrado hacer funcionar este aspecto de la
+funcionalidad. Los m\'etodos de prueba elaborados son capaces de desplegar la
+direcci\'on IP, puerto TCP (tanto del enviador como del receptor) y el
+contenido del mensaje (el comando o la respuesta).
+
+A continuaci\'on un ejemplo de captura de una sesi\'on POP,
+
 \begin{verbatim}
 src=c0a8010a dst=c0a8010f
 src=50010 dst=110
@@ -168,10 +217,15 @@ src=c0a8010f dst=c0a8010a
 src=110 dst=50010
 src=6e dst=c35a
 \end{verbatim}
-Hay algunos paquetes que no tienen informaci\'on (los ack por ejemplo) los que
-ser\'an descartados por el objeto Mensaje.
+
+Hay algunos paquetes que no tienen informaci\'on de capas superiores, sino que
+son mensajes de control (por ejemplo, los ACK del protocolo TCP). \'Estos
+ser\'an descartados por el objeto \textsf{Mensaje}.
+
 \section{Trabajo Restante}
-Lo siguiente ser\'a crear el Objeto mensaje y la estructura que organizar\'a el
-tr'afico en conversaciones. Luego se har\'a el MensajePOP, para mostrar la
-informaci\'on relevante.
+
+Lo siguiente ser\'a crear el objeto \textsf{Mensaje} y la estructura que
+organizar\'a el tr'afico en conversaciones. Luego se har\'a el
+\textsf{MensajePOP}, para mostrar la informaci\'on relevante.
+
 \end{document}
