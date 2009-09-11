@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
     /* Define the device */
     dev = pcap_lookupdev(errbuf);
-    dev = "wlan0";
+    dev = "eth0";
     if (dev == NULL) {
             fprintf(stderr, "Couldn't find default device: %s\n", errbuf);
             return(2);
