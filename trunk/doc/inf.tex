@@ -1,0 +1,177 @@
+\documentclass[titlepage]{article}
+\usepackage[spanish]{babel}
+\usepackage[pdftex]{hyperref}
+\usepackage[pdftex]{graphicx}
+
+\bibliographystyle{plain}
+
+\title{CC51D: Proyecto: Mail Snatcher \\Informe de avance}
+\author{Felipe Ignacio Ca\~nas Sabat \and Pablo Ignacio Sep\'ulveda Rojas
+\and Prof: Alejandro Hevia}
+
+\begin{document}
+\maketitle
+\section{Introducci\'on}
+El proyecto denominado MailSnatcher, consiste en capturar y desplegar los
+correos electr\'onicos que sean enviados usando un canal inseguro en una red
+wireless.
+\section{Funcionalidades Esperadas}
+El sistema, debe ser capaz de desplegar los mails le\'idos usando la mayor
+cantidad de protocolos posibles. En particular se pretende poder leer en orden:
+\begin{itemize}
+\item POP
+\item SMTP
+\item IMAP
+\item HTTP (hotmail y gmail)
+\end{itemize} 
+El orden original se decidi\'o por la dificultad de comprender cada protocolo. 
+Se est\'a considerando intentar leer hotmail y gmail antes que SMTP e IMAP,
+pues son m\'as usados, y generar'ian un mayor impacto.
+\section{Dise\~no Preliminar}
+Se pretende usar un dise\~no orientado a objetos. Existe un primer objeto
+Capturador, que interactuar\'a con pcap y su funci\'on ser\'a obtener los
+paquetes enviados (filtrados mediante el puerto, as\'i 110 ser\'a POP, 80
+ser\'a HTML, etc) y armar un objeto Mensaje, el que contendr\'a la IP y el
+puerto tando del emisor como del receptor (estos son los identificadores).
+Desde el objeto Mensaje se heredar\'an MensajePop, MensajeHTTP, y as\'i para
+cada uno de los protocolos que se implementen.
+\section{Trabajo realizado}
+Hasta ahora, se ha estado investigando los protocolos y la librer\'ia y 
+tambi\'en desarrollando.
+\subsection{Investigaci\'on}
+Se probaron las librer\'ias jpcap y jnetpcap para hacer el desarrollo en Java,
+\'estas hacen uso de pcap mediante JNI, y lamentablemente no funcionan para 
+procesadores de 64 bits (que es el equipo con que se cuenta), por lo que 
+finalmente se decidi\'o usar simplemente pcap y desarrollar en c++.
+
+Adem\'as se investig\'o principalmente el protocolo POP, adem\'as se investig'o
+el protocolo HTTP, para dimensionar las dificultades involucradas. Adem\'as se
+revisaron los protocolos ethernet, IP y TCP, para poder obtener la
+informaci\'on relevante del paquete.
+\subsection{Desarrollo}
+Hasta ahora, se ha desarrollado gran parte del capturador, se prob\'o
+capturando paquetes POP y funciona. Despliega la IP, puerto (tanto del enviador
+como del receptor) y el contenido del mensaje (el comando o la respuesta).
+
+A continuaci\'on un ejemplo de captura de una sesi\'on POP.
+\begin{verbatim}
+src=c0a8010a dst=c0a8010f
+src=50010 dst=110
+src=c35a dst=6e
+src=c0a8010f dst=c0a8010a
+src=110 dst=50010
+src=6e dst=c35a
+src=c0a8010a dst=c0a8010f
+src=50010 dst=110
+src=c35a dst=6e
+src=c0a8010f dst=c0a8010a
+src=110 dst=50010
+src=6e dst=c35a
+
++OK Dovecot ready.
+src=c0a8010a dst=c0a8010f
+src=50010 dst=110
+src=c35a dst=6e
+src=c0a8010a dst=c0a8010f
+src=50010 dst=110
+src=c35a dst=6e
+user acanas
+src=c0a8010f dst=c0a8010a
+src=110 dst=50010
+src=6e dst=c35a
+src=c0a8010f dst=c0a8010a
+src=110 dst=50010
+src=6e dst=c35a
+
++OK
+src=c0a8010a dst=c0a8010f
+src=50010 dst=110
+src=c35a dst=6e
+src=c0a8010a dst=c0a8010f
+src=50010 dst=110
+src=c35a dst=6e
+pass 1234
+src=c0a8010f dst=c0a8010a
+src=110 dst=50010
+src=6e dst=c35a
+
++OK Logged in.
+src=c0a8010a dst=c0a8010f
+src=50010 dst=110
+src=c35a dst=6e
+src=c0a8010a dst=c0a8010f
+src=50010 dst=110
+src=c35a dst=6e
+list
+src=c0a8010f dst=c0a8010a
+src=110 dst=50010
+src=6e dst=c35a
+
++OK 2 messages:
+1 861
+2 1057
+.
+src=c0a8010a dst=c0a8010f
+src=50010 dst=110
+src=c35a dst=6e
+src=c0a8010a dst=c0a8010f
+src=50010 dst=110
+src=c35a dst=6e
+retr 1
+src=c0a8010f dst=c0a8010a
+src=110 dst=50010
+src=6e dst=c35a
+
++OK 861 octets
+Return-path: <fcanas@Quasimodo.casa>
+Envelope-to: acanas@Quasimodo.casa
+Delivery-date: Mon, 12 Jan 2009 00:43:25 -0300
+Received: from fcanas by localhost with local (Exim 4.63)
+(envelope-from <fcanas@Quasimodo.casa>)
+id 1LMDi1-0004z8-DZ
+for acanas@Quasimodo.casa; Mon, 12 Jan 2009 00:43:25 -0300
+Date: Mon, 12 Jan 2009 00:43:25 -0300
+To: Alberto Ignacio Canas Sabat <acanas@Quasimodo.casa>
+Subject: Hola
+Message-ID: <20090112034325.GA19153@Quasimodo.casa>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Felipe Ignacio Canas Sabat <fcanas@Quasimodo.casa>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: fcanas@Quasimodo.casa
+X-SA-Exim-Scanned: No (on localhost); SAEximRunCond expanded to false
+
+Bienvenido.
+
+Solo de prueba.
+
+-Felipe
+.
+src=c0a8010a dst=c0a8010f
+src=50010 dst=110
+src=c35a dst=6e
+src=c0a8010a dst=c0a8010f
+src=50010 dst=110
+src=c35a dst=6e
+quit
+src=c0a8010f dst=c0a8010a
+src=110 dst=50010
+src=6e dst=c35a
+
++OK Logging out.
+src=c0a8010a dst=c0a8010f
+src=50010 dst=110
+src=c35a dst=6e
+src=c0a8010f dst=c0a8010a
+src=110 dst=50010
+src=6e dst=c35a
+\end{verbatim}
+Hay algunos paquetes que no tienen informaci\'on (los ack por ejemplo) los que
+ser\'an descartados por el objeto Mensaje.
+\section{Trabajo Restante}
+Lo siguiente ser\'a crear el Objeto mensaje y la estructura que organizar\'a el
+tr'afico en conversaciones. Luego se har\'a el MensajePOP, para mostrar la
+informaci\'on relevante.
+\end{document}
