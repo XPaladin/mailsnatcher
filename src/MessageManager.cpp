@@ -7,29 +7,43 @@
 
 #include "MessageManager.h"
 #include <sstream>
-MessageManager::MessageManager(){
+
+MessageManager::MessageManager() {
     //  messageTable= new map<string,Message>();
+}
+MessageManager::~MessageManager(){
+
 }
 
 void MessageManager::insert(int client_ip, short client_port,
-		int server_ip, short server_port, std::string message){
+		int server_ip, short server_port,
+		const unsigned char message[], size_t largo){
 	Message *m;
 	std::string header= headerString(client_ip, client_port,
 			server_ip, server_port);
 
 	std::map<std::string,Message*>::iterator iter=messageTable.find(header);
-
+/*
 	if( iter == messageTable.end() ){
 		m = new Message(client_ip, client_port,
 				server_ip, server_port);
 	}else{
 		m = iter->second;
 	}
-	m->append(message);
-	messageTable[header] = m;
+	m->append(message, largo);
+	*/messageTable[header] = m;
 
 }
 
+Message* MessageManager::remove(int client_ip, short client_port,
+		int server_ip, short server_port){
+	std::string header= headerString(client_ip, client_port,
+			server_ip, server_port);
+
+	std::map<std::string,Message*>::iterator iter=messageTable.find(header);
+	return iter == messageTable.end()? NULL : iter->second;
+
+}
 
 std::string MessageManager::headerString(
                             int client_ip, short client_port,

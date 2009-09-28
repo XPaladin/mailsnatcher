@@ -21,8 +21,12 @@ public:
     MessageManager();
 
     void insert(int client_ip, short client_port,
-                int server_ip, short server_port, std::string message);
-protected:
+                int server_ip, short server_port,
+                const unsigned char message[], size_t largo);
+
+    Message* remove(int client_ip, short client_port,
+                    int server_ip, short server_port);
+
     static std::string headerString(int client_ip, short client_port,
                             int server_ip, short server_port);
 
