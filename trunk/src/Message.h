@@ -16,7 +16,12 @@ public:
 	Message(int ip_server, short port_server,
 	        int ip_client,short port_client);
 
-	void append(std::string s);
+	void append(char msg[], size_t l);
+	int server_ip;
+	short server_port;
+	int client_ip;
+	short client_port;
+
 	virtual ~Message();
 };
 
