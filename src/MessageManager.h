@@ -27,6 +27,9 @@ public:
     Message* remove(int client_ip, short client_port,
                     int server_ip, short server_port);
 
+    Message* get(int client_ip, short client_port,
+                        int server_ip, short server_port);
+
     static std::string headerString(int client_ip, short client_port,
                             int server_ip, short server_port);
 
