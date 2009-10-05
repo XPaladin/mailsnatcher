@@ -41,6 +41,17 @@ Message* MessageManager::remove(int client_ip, short client_port,
 			server_ip, server_port);
 
 	std::map<std::string,Message*>::iterator iter=messageTable.find(header);
+	messageTable.erase(header);
+	return iter == messageTable.end()? NULL : iter->second;
+
+}
+
+Message* MessageManager::get(int client_ip, short client_port,
+		int server_ip, short server_port){
+	std::string header= headerString(client_ip, client_port,
+			server_ip, server_port);
+
+	std::map<std::string,Message*>::iterator iter=messageTable.find(header);
 	return iter == messageTable.end()? NULL : iter->second;
 
 }

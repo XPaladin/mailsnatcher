@@ -69,6 +69,7 @@ int main(int argc, char *argv[])
     std::cout<< "Listening on interface" <<":" << interfaces->name << std::endl;
     /* Open the session in promiscuous mode */
     handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
+ //   handle = pcap_open_offline("../etc/pop3.out", errbuf);
     if (handle == NULL) {
             fprintf(stderr, "Couldn't open device %s: %s\n", dev, errbuf);
             return(2);
@@ -104,16 +105,16 @@ int main(int argc, char *argv[])
 	}
 	src_ip=((int*)iphosts)[1];
 	dst_ip=((int*)iphosts)[0];
-        printf("src=%x dst=%x\n",src_ip,dst_ip);
-        offset+=ip_len*4;
+	printf("src_ip=%x dst_ip=%x\n",src_ip,dst_ip);
+	offset+=ip_len*4;
 	for(i=0;i<4;i++){
 		ports[3-i]=packet[offset+i];
 	}
 	src_port=((short*)ports)[1];
 	dst_port=((short*)ports)[0];
 
-//	printf("src=%u dst=%hu\n",src_port,dst_port);
-//	printf("src=%x dst=%x\n",src_port,dst_port);
+	printf("src_port=%u dst_port=%hu\n",src_port,dst_port);
+	//printf("src=%x dst=%x\n",src_port,dst_port);
 	unsigned int server_ip, client_ip;
 	unsigned short server_port, client_port;
 	if(is_server(dst_port)){
@@ -134,23 +135,26 @@ int main(int argc, char *argv[])
 	int mf=(packet[offset+3]>>5)&0x01;
 	offset+=tcp_len*4;
 
-	if(offset<header.len){
+	if(offset<header.caplen){
 		msgMan->insert(client_ip, client_port, server_ip, server_port,
-			&(packet[offset]),	header.len-offset);
-		if(!mf && src_port==server_port){
-			Message *msg;
-			msg=msgMan->remove(client_ip, client_port, server_ip, server_port);
-			if(msg==NULL){
+			&(packet[offset]),	header.caplen-offset);
+		Message *msg=msgMan->get(client_ip, client_port, server_ip, server_port);
+		if(msg == NULL){
+			fprintf(stderr, "Mensaje perdido\n");
+			continue;
+		}
+		if(!mf && src_port==server_port && msg->isReady() ){
+			msg = msgMan->remove(client_ip, client_port, server_ip, server_port);
+			if(msg == NULL){
 				fprintf(stderr, "Mensaje perdido\n");
 				continue;
-			}else{
-				convMan->insert(msg);
 			}
+			convMan->insert(msg);
 		}
 	}
 
-	/*
-	for(i=offset; i<header.len; i++){
+
+	for(i=offset; i<header.caplen; i++){
 		if(isprint(packet[i]) )
 			printf("%c",packet[i]);
 		else
@@ -158,12 +162,12 @@ int main(int argc, char *argv[])
 				i++;
 				printf("\n");
 			}
-		//                printf("%.",packet[i]);
+	//		else printf("%x",packet[i]);
 
-		//if(i%4==0)printf(" ");
+//		if(i%4==0)printf(" ");
 
 	}
-	//printf("\n");
+	printf("\n");
 	/* And close the session */
     }
     pcap_close(handle);
