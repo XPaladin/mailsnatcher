@@ -1,5 +1,11 @@
+#include <stdlib.h>
 #include <pcap.h>
 #include <stdio.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #define Ethernet_len 14
 
 int main(int argc, char *argv[])
@@ -14,9 +20,20 @@ int main(int argc, char *argv[])
     struct pcap_pkthdr header;      /* The header that pcap gives us */
     const u_char *packet;           /* The actual packet */
 
+    int outfd; /* File to write to */
+
+    unsigned short src_port, dst_port;
+    unsigned int src_ip, dst_ip;
+    char iphosts[8];
+    char ports[4];
+    int i;
+    char ip_len;
+    char tcp_len;
+    int mf;
+
     /* Define the device */
     dev = pcap_lookupdev(errbuf);
-    dev = "eth0";
+    dev = "wlan0";
     if (dev == NULL) {
             fprintf(stderr, "Couldn't find default device: %s\n", errbuf);
             return(2);
@@ -42,21 +59,26 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Couldn't install filter %s: %s\n", filter_exp, pcap_geterr(handle));
             return(2);
     }
-    unsigned short src_port, dst_port;
-    unsigned int src_ip, dst_ip;
-    char iphosts[8];
-    char ports[4];
     /* Grab a packet */
+    outfd = creat("/tmp/pcap.out", S_IWUSR | S_IRUSR | S_IRGRP |S_IROTH);
+    if (outfd == -1) { exit(outfd); }
+    if (fchown(outfd, 1000, 1000)) { exit(-1); }
     while(1){
         size_t offset=Ethernet_len;
         do{
             packet = pcap_next(handle, &header);
         }while(packet==NULL);
+        /* Write to the file */
+        write(outfd, packet, header.len);
         /* Print its length */
-        //printf("Jacked a packet with length of [%d]\n", header.len);
-        int i=0;
-        char ip_len = packet[offset]&0x0f;
-        //printf("ip len=%x\n",(int)ip_len);
+        /*
+        printf("Jacked a packet with length of [%d]\n", header.len);
+        */
+        i=0;
+        ip_len = packet[offset]&0x0f;
+        /*
+        printf("ip len=%x\n",(int)ip_len);
+        */
 	for(i=0;i<8;i++){
 		iphosts[7-i]=packet[offset+i+12];
 	}
@@ -71,9 +93,11 @@ int main(int argc, char *argv[])
 	dst_port=((short*)ports)[0];
         printf("src=%u dst=%hu\n",src_port,dst_port);
         printf("src=%x dst=%x\n",src_port,dst_port);
-        char tcp_len = packet[offset+12]>>4;
-        //printf("tcp len=%x\n",(int)tcp_len);
-        int mf=(packet[offset+3]>>5)&0x01;
+        tcp_len = packet[offset+12]>>4;
+        /*
+        printf("tcp len=%x\n",(int)tcp_len);
+        */
+        mf=(packet[offset+3]>>5)&0x01;
         offset+=tcp_len*4;
         if(offset<header.len && !mf)
             printf("\n");
@@ -86,12 +110,16 @@ int main(int argc, char *argv[])
                     i++;
                     printf("\n");
                 }
-//                printf("%.",packet[i]);
-            
-            //if(i%4==0)printf(" ");
-
+                /*
+                printf("%.",packet[i]);
+                */
+            /*
+            if(i%4==0)printf(" ");
+            */
         }
-        //printf("\n");
+        /*
+        printf("\n");
+        */
        /* And close the session */
     }
     pcap_close(handle);
