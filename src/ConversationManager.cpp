@@ -18,8 +18,8 @@ ConversationManager::~ConversationManager() {
 	// TODO Auto-generated destructor stub
 }
 void ConversationManager::insert(Message *m){
-	std::string header= MessageManager::headerString(m->getClient_ip(), m->getClient_port(),
-			m->getServer_ip(), m->getServer_port());
+	std::string header= MessageManager::headerString(m->getClientIp(), m->getClientPort(),
+			m->getServerIp(), m->getServerPort());
 
 	std::map<std::string,Conversation*>::iterator iter=conversationTable.find(header);
 	Conversation *c;

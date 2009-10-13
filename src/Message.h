@@ -1,52 +1,47 @@
 /*
- * Message.h
- *
  *  Created on: Sep 25, 2009
  *      Author: psepulv
+ *
+ * Últimos cambios:
+ * $Author$
+ * $Rev$
+ * $Date$
  */
 
-#ifndef MESSAGE_H_
-#define MESSAGE_H_
+#ifndef MESSAGE_H
+#define MESSAGE_H
 
-#include <string>
+#include <cstdlib>
 
-class Message {
-public:
-	Message();
-	Message(int ip_server, short port_server,
-	        int ip_client,short port_client);
+class Message
+{
+    protected:
+        unsigned int serverIp;
+        unsigned short serverPort;
+        unsigned int clientIp;
+        unsigned short clientPort;
 
-	void append(char msg[], size_t l);
-	bool isReady();
-	virtual ~Message();
+    public:
+        Message (unsigned int serverIp = 0,
+                unsigned short serverPort = 0,
+                unsigned int clientIp = 0,
+                unsigned short clientPort = 0) :
+            serverIp (serverIp),
+            serverPort (serverPort),
+            clientIp (clientIp),
+            clientPort (clientPort)
+            { }
+        virtual ~Message () { }
 
-	int getClient_ip() const
-    {
-        return client_ip;
-    }
+        virtual void append (char* data, size_t len) =0;
+        virtual bool isReady () const =0;
+        virtual bool isFromServer () const =0;
 
-    short getClient_port() const
-    {
-        return client_port;
-    }
-
-    int getServer_ip() const
-    {
-        return server_ip;
-    }
-
-    short getServer_port() const
-    {
-        return server_port;
-    }
-
-protected:
-	int server_ip;
-	short server_port;
-	int client_ip;
-	short client_port;
-
-
+        unsigned int getServerIp () const { return serverIp; }
+        unsigned short getServerPort () const { return serverPort; }
+        unsigned int getClientIp () const { return clientIp; }
+        unsigned short getClientPort () const { return clientPort; }
 };
 
-#endif /* MESSAGE_H_ */
+#endif /* MESSAGE_H */
+
