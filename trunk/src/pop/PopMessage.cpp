@@ -1,16 +1,15 @@
 #include "PopMessage.h"
 
-void PopMessage::append (char* data, size_t len)
-{
-}
-
 bool PopMessage::isReady () const
 {
-    return true;
-}
-
-bool PopMessage::isFromServer () const
-{
-    return true;
+    if (data.size() > 4) {
+        char seq[5] = { '\x0a', '\x0d', '\x2e', '\x0a', '\x0d' };
+        std::list<char>::const_reverse_iterator riter = data.rbegin();
+        for (int i=0; i<5; ++i) {
+            if (*riter++ != seq[i]) { return false; }
+        }
+        return true;
+    }
+    return false;
 }
 

@@ -15,8 +15,6 @@ void test_base64 ();
 
 int main (int argc, char* argv[])
 {
-    //test_message();
-    test_base64();
     return 0;
 }
 
