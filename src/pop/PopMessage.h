@@ -12,20 +12,22 @@ class PopMessage:
     public Message
 {
     protected:
-
-
     public:
         PopMessage (unsigned int serverIp = 0,
                 unsigned short serverPort = 0,
                 unsigned int clientIp = 0,
                 unsigned short clientPort = 0) :
             Message (serverIp, serverPort, clientIp, clientPort)
-        {}
+        {
+        }
         ~PopMessage () { }
 
-        void append (char* data, size_t len);
         bool isReady () const;
-        bool isFromServer () const;
+        bool isFromServer () const
+        {
+            if (data.size() > 0) { return data.front() == '+'; }
+            return false;
+        }
 };
 
 #endif /* POP_MESSAGE */
