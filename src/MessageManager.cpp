@@ -6,6 +6,7 @@
  */
 
 #include "MessageManager.h"
+#include "PopMessage.h"
 #include <sstream>
 
 MessageManager::MessageManager() {
@@ -23,15 +24,21 @@ void MessageManager::insert(int client_ip, short client_port,
 			server_ip, server_port);
 
 	std::map<std::string,Message*>::iterator iter=messageTable.find(header);
-/*
-	if( iter == messageTable.end() ){
-		m = new Message(client_ip, client_port,
+
+//	if( iter == messageTable.end() ){
+		switch(server_port){
+		case 110:
+			m=new PopMessage(client_ip, client_port,
 				server_ip, server_port);
-	}else{
+			break;
+		default: 
+			m = new Message(client_ip, client_port,
+				server_ip, server_port);
+/*	}else{
 		m = iter->second;
 	}
-	m->append(message, largo);
-	*/messageTable[header] = m;
+	m->append(message, largo);*/
+	messageTable[header] = m;
 
 }
 
