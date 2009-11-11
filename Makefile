@@ -7,7 +7,8 @@ INCLUDE=-Isrc/{,util,pop,imap,smtp,http}
 test: src/Test.c
 	$(CC) $(CFLAGS) $(LIBS) $(INCLUDE) -o bin/$@ $^
 
-Main: src/Main.cpp Message.o util.o ConversationManager.o MessageManager.o Message.o Conversation.o PopMessage.o
+Main: src/Main.cpp util.o Message.o Conversation.o \
+    ConversationManager.o PopMessage.o MessageManager.o
 	$(CXXC) $(CFLAGS) $(LIBS) $(INCLUDE) -o bin/$@ $^
 
 main: src/main.cpp Message.o util.o PopMessage.o
