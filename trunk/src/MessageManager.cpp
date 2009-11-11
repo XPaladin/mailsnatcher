@@ -32,8 +32,9 @@ void MessageManager::insert(int client_ip, short client_port,
 				server_ip, server_port);
 			break;
 		default: 
-			m = new Message(client_ip, client_port,
-				server_ip, server_port);
+                        /* ¡No se puede instanciar una clase virtual! */
+                        return;
+                }
 /*	}else{
 		m = iter->second;
 	}

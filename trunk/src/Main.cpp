@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
         }while(packet==NULL);
         /* Print its length */
         //printf("Jacked a packet with length of [%d]\n", header.len);
-        int i=0;
+        size_t i=0;
         char ip_len = packet[offset]&0x0f;
         //printf("ip len=%x\n",(int)ip_len);
 	for(i=0;i<8;i++){
