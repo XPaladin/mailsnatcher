@@ -10,6 +10,7 @@
 
 #include "Conversation.h"
 #include <map>
+#include <string>
 
 class ConversationManager {
 protected:

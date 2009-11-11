@@ -138,13 +138,15 @@ int main(int argc, char *argv[])
 	if(offset<header.caplen){
 		msgMan->insert(client_ip, client_port, server_ip, server_port,
 			&(packet[offset]),	header.caplen-offset);
-		Message *msg=msgMan->get(client_ip, client_port, server_ip, server_port);
+		Message *msg=msgMan->get(client_ip, client_port, 
+								server_ip, server_port);
 		if(msg == NULL){
 			fprintf(stderr, "Mensaje perdido\n");
 			continue;
 		}
 		if(!mf && src_port==server_port && msg->isReady() ){
-			msg = msgMan->remove(client_ip, client_port, server_ip, server_port);
+			msg = msgMan->remove(client_ip, client_port, 
+								server_ip, server_port);
 			if(msg == NULL){
 				fprintf(stderr, "Mensaje perdido\n");
 				continue;
