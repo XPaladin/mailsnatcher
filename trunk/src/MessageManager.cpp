@@ -25,7 +25,7 @@ void MessageManager::insert(int client_ip, short client_port,
 
 	std::map<std::string,Message*>::iterator iter=messageTable.find(header);
 
-//	if( iter == messageTable.end() ){
+	if( iter == messageTable.end() ){
 		switch(server_port){
 		case 110:
 			m=new PopMessage(client_ip, client_port,
@@ -35,10 +35,10 @@ void MessageManager::insert(int client_ip, short client_port,
                         /* ¡No se puede instanciar una clase virtual! */
                         return;
                 }
-/*	}else{
+	}else{
 		m = iter->second;
 	}
-	m->append(message, largo);*/
+	m->append(message, largo);
 	messageTable[header] = m;
 
 }

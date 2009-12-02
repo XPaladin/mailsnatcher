@@ -1,7 +1,7 @@
 CXXC=g++
 CC=gcc
-CFLAGS=-g -Wall -pedantic `pcap-config --cflags`
-LIBS=`pcap-config --libs`
+CFLAGS=-g -Wall -pedantic -I/usr/include
+LIBS=-L /usr/lib -lpcap
 INCLUDE=-Isrc/{,util,pop,imap,smtp,http}
 
 test: src/Test.c

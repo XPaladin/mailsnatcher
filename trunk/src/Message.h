@@ -40,16 +40,17 @@ class Message
             if (bytes != NULL) { delete[](bytes); }
         }
 
-        virtual void append (char* data, size_t len)
+        virtual void append (const unsigned char* cdata, 
+			const size_t len)
         {
-            for (size_t i=0; i<len; ++i) { this->data.push_back(data[i]); }
+            for (size_t i=0; i<len; ++i) { this->data.push_back(cdata[i]); }
         }
 
         virtual bool isReady () const =0;
         virtual bool isFromServer () const =0;
 
         size_t getLength () const { return data.size(); }
-        const char* getBytes () const;
+        char* getBytes () const;
 
         unsigned int getServerIp () const { return serverIp; }
         unsigned short getServerPort () const { return serverPort; }
