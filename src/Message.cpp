@@ -9,7 +9,7 @@
 
 #include "Message.h"
 
-const char* Message::getBytes () const
+char* Message::getBytes () const
 {
     if (bytes == NULL) {
         int i = 0;
