@@ -9,11 +9,14 @@ test: src/Test.c
 
 Main: src/Main.cpp util.o Message.o Conversation.o \
     ConversationManager.o PopMessage.o MessageManager.o\
-    HttpMessage.o
+    HttpMessage.o dechunk.o
 	$(CXXC) $(CFLAGS) $(LIBS) $(INCLUDE) -o bin/$@ $^
 
 main: src/main.cpp Message.o util.o PopMessage.o 
 	$(CXXC) $(CFLAGS) $(LIBS) $(INCLUDE) -o bin/$@ $^
+
+dechunk.o: src/util/dechunk.cpp
+	$(CXXC) $(CFLAGS) $(INCLUDE) -c $<
 
 util.o: src/util/util.cpp
 	$(CXXC) $(CFLAGS) $(INCLUDE) -c $<
