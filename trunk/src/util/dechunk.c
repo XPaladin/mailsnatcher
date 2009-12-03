@@ -7,35 +7,12 @@
 
 #define BUFSIZE 512
 
-size_t cur_chunk_siz = 0;
-size_t cur_chunk_wrt = 0;
-
-void dechunk (int fd, const char* buf, size_t bufsize)
-{
-    size_t to_write;
-    if (cur_chunk_siz == 0) {
-        char* endptr;
-        cur_chunk_siz = strtoul(buf, &endptr, 16);
-        cur_chunk_wrt = 0;
-        bufsize -= ((endptr-buf) + 2);
-        buf += (endptr - buf) + 2;
-    }
-    to_write = (cur_chunk_siz - cur_chunk_writ) > bufsize ?
-        bufsize : (cur_chunk_siz - cur_chunk_writ);
-    if (to_write == bufsize) {
-        write(fd, buf, to_write);
-    } else {
-        write(fd, buf, to_write);
-    }
-}
-
 int main (int argc, char** argv)
 {
     int ifd, ofd;
-    size_t nread, i;
-    char buf[BUFSIZE];
-    char match[4] = { 0x00, 0x00, 0x00, 0x00 };
-    unsigned char dechunking = 0;
+    char crlf[2] = { 0x0d, 0x0a };
+    char byte;
+    size_t chunk_lft = 0;
 
     if ((ifd = open(argv[1], O_RDONLY)) < 0) {
         perror("Error opening file");
@@ -46,30 +23,34 @@ int main (int argc, char** argv)
         exit(1);
     }
 
-    while ((nread = read(ifd, buf, BUFSIZE)) > 0) {
-        for (i=0; !dechunking && i<nread; ++i) {
-            match[3] = buf[i];
-            if (match[0] == '\x0d' && match[1] == '\x0a' &&
-                    match[2] == '\x0d' && match[3] == '\x0a') {
-                size_t j;
-                dechunking = 1;
-                if (i < nread-1) {
-                    for (j=++i; j<nread; ++j) { buf[j-i] = buf[j]; }
-                } else {
-                    i=0;
+    while (1) {
+        if (chunk_lft == 0) {
+            if (crlf[0] == 0x0d && crlf[1] == 0x0a) {
+                char* endptr;
+                char num[64];
+                unsigned char idx = 0;
+                while (read(ifd, &byte, 1) == 1) {
+                    printf("%02x ", byte);
+                    num[idx++] = byte;
+                    crlf[0] = crlf[1];
+                    crlf[1] = byte;
+                    if (crlf[0] == 0x0d && crlf[1] == 0x0a) { break; }
                 }
-                nread = read(ifd, buf+i, BUFSIZE-i);
-                break;
+                printf("\n");
+                chunk_lft = strtoul(num, &endptr, 16);
+                printf("chunk_lft=%lu\n", chunk_lft);
+                crlf[0] = crlf[1] = 0x00;
+                if (num == endptr) { printf("Error\n"); exit(1); }
+            } else {
+                if (read(ifd, &byte, 1) < 1) { break; }
+                crlf[0] = crlf[1];
+                crlf[1] = byte;
             }
-            match[0] = match[1];
-            match[1] = match[2];
-            match[2] = match[3];
+        } else {
+            read(ifd, &byte, 1);
+            chunk_lft -= write(ofd, &byte, 1);
         }
-
-        if (dechunking) { dechunk(ofd, buf, nread); }
     }
-
-    if (nread == -1) { perror("Error"); exit(1); }
 
     return 0;
 }
