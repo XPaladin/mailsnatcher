@@ -2,7 +2,7 @@ CXXC=g++
 CC=gcc
 CFLAGS=-g -Wall -pedantic -I/usr/include
 LIBS=-L /usr/lib -lpcap
-INCLUDE=-Isrc/{,util,pop,imap,smtp,http}
+INCLUDE=-Isrc/ -Isrc/util -Isrc/pop -Isrc/imap -Isrc/smtp,src/http
 
 test: src/Test.c
 	$(CC) $(CFLAGS) $(LIBS) $(INCLUDE) -o bin/$@ $^

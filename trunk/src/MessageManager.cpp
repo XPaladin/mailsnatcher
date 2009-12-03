@@ -8,7 +8,7 @@
 #include "MessageManager.h"
 #include "PopMessage.h"
 #include <sstream>
-
+#include <stdio.h>
 MessageManager::MessageManager() {
     //  messageTable= new map<string,Message>();
 }
@@ -23,6 +23,7 @@ void MessageManager::insert(int client_ip, short client_port,
 	std::string header= headerString(client_ip, client_port,
 			server_ip, server_port);
 
+	//printf("in :%s\n",header.c_str());
 	std::map<std::string,Message*>::iterator iter=messageTable.find(header);
 
 	if( iter == messageTable.end() ){
@@ -33,6 +34,7 @@ void MessageManager::insert(int client_ip, short client_port,
 			break;
 		default: 
                         /* ¡No se puede instanciar una clase virtual! */
+			fprintf(stderr,"Protocolo no entendido:%d",server_port);
                         return;
                 }
 	}else{
@@ -40,7 +42,7 @@ void MessageManager::insert(int client_ip, short client_port,
 	}
 	m->append(message, largo);
 	messageTable[header] = m;
-
+	//printf("in :%s\n",header.c_str());
 }
 
 Message* MessageManager::remove(int client_ip, short client_port,
@@ -58,7 +60,7 @@ Message* MessageManager::get(int client_ip, short client_port,
 		int server_ip, short server_port){
 	std::string header= headerString(client_ip, client_port,
 			server_ip, server_port);
-
+	//printf("out:%s\n",header.c_str());
 	std::map<std::string,Message*>::iterator iter=messageTable.find(header);
 	return iter == messageTable.end()? NULL : iter->second;
 
