@@ -53,10 +53,10 @@ int processPacket(const u_char *packet, MessageManager *msgMan, ConversationMana
 		server_port = dst_port;
 		client_port = src_port;
 	}else if( is_server(src_port) ){
-		server_ip = dst_ip;
-		client_ip = src_ip;
-		server_port = dst_port;
-		client_port = src_port;
+		server_ip = src_ip;
+		client_ip = dst_ip;
+		server_port = src_port;
+		client_port = dst_port;
 	}else{
 		fprintf(stderr, "Protocolo no entendido:%d,%d,%x,%x\n",dst_port,src_port,dst_port,src_port);
 		return -1;
@@ -74,7 +74,7 @@ int processPacket(const u_char *packet, MessageManager *msgMan, ConversationMana
 			fprintf(stderr, "Mensaje perdido1\n");
 			return -2;
 		}
-		if(mf)printf("Moar fragments!!\n");
+	//	if(mf)printf("Moar fragments!!\n");
 		if(!mf && src_port==server_port && msg->isReady() ){
 			msg = msgMan->remove(client_ip, client_port, 
 								server_ip, server_port);
@@ -86,6 +86,7 @@ int processPacket(const u_char *packet, MessageManager *msgMan, ConversationMana
 			for(i=0;i<msg->getLength();i++){
 				printf("%c",bytes[i]);
 			}			
+			printf("\n");
 			convMan->insert(msg);
 		}
 	}
@@ -187,7 +188,7 @@ int main(int argc, char *argv[])
 		if(archivo!=NULL){
 			if(fread(packet2,sizeof(char),Ethernet_len+4, archivo)<Ethernet_len+4)break;
 			u_short len=ntohs(*(short*)(packet2+Ethernet_len+2));
-			printf("len=%d\n",len);
+			//printf("len=%d\n",len);
 			fread((packet2+Ethernet_len+4),sizeof(char),len-4,archivo);
 			processPacket(packet2, msgMan, convMan);
         }else{
