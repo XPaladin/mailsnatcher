@@ -16,6 +16,7 @@ bool dechunk (const vector<char>& vec, stringstream& ss)
     char crlf[2] = { 0x0d, 0x0a };
     char byte;
     size_t chunk_lft = 0;
+    size_t siz = 0;
     vector<char>::const_iterator iter = vec.begin();
 
     ss.str("");
@@ -26,19 +27,20 @@ bool dechunk (const vector<char>& vec, stringstream& ss)
                 char* endptr;
                 char num[64];
                 unsigned char idx = 0;
-                byte = *iter;
-                while ((++iter) != vec.end()) {
-                    /* printf("%02x ", byte) */;
+                while ((iter) != vec.end()) {
+                    byte = *iter++;
+                    printf("%02x ", byte);
                     num[idx++] = byte;
                     crlf[0] = crlf[1];
                     crlf[1] = byte;
                     if (crlf[0] == 0x0d && crlf[1] == 0x0a) { break; }
                 }
-                /* printf("\n") */;
+                printf("\n");
                 chunk_lft = strtoul(num, &endptr, 16);
-                /* printf("chunk_lft=%lu\n", chunk_lft) */;
+                printf("chunk_lft=%lu\n", chunk_lft);
                 if (endptr == num) { return false; }
-                if (chunk_lft == 0) { return true; }
+                if (chunk_lft == 0) { printf("siz=%lu\n", siz); return true; }
+                siz += chunk_lft;
                 crlf[0] = crlf[1] = 0x00;
             } else {
                 byte = *iter;
@@ -59,15 +61,15 @@ void gunzip (stringstream& ss)
 {
     char byte;
     int fd;
+    size_t writ=0;
 
-    fd = creat("/tmp/mailsnatcher-chunk.gz", O_RDWR | S_IRUSR | S_IWUSR);
+    fd = creat("/tmp/mailsnatcher-chunk.gz", O_RDWR | S_IRUSR | S_IWUSR |
+            O_TRUNC);
     if (fd == -1) { perror("gunzip"); exit(1); }
-    while (1) {
-        ss >> byte;
-        if (ss.eof()) { break; }
-        write(fd, &byte, 1);
-    }
+    writ = write(fd, ss.str().c_str(), ss.str().size());
     close(fd);
+
+    printf("writ=%lu\n", writ);
 
     ss.str("");
 
@@ -78,4 +80,24 @@ void gunzip (stringstream& ss)
     while (read(fd, &byte, 1) == 1) { ss << byte; }
     close(fd);
 }
+
+/*
+int main (int argc, char** argv)
+{
+    vector<char> vec;
+    stringstream ss;
+    char buf[1024];
+    ssize_t rd;
+
+    int fd = open("/tmp/chunked.out", O_RDONLY);
+    while ((rd = read(fd, buf, 1024)) > 0) {
+        for (int i=0; i<rd; ++i) { vec.push_back(buf[i]); }
+    }
+
+    if (!dechunk(vec, ss)) { printf("Error\n"); exit(1); }
+    gunzip(ss);
+
+    return 0;
+}
+*/
 
