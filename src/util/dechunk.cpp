@@ -73,6 +73,7 @@ void gunzip (stringstream& ss)
 
     ss.str("");
 
+    system("chmod 600 /tmp/mailsnatcher-chunk.gz");
     system("gunzip /tmp/mailsnatcher-chunk.gz");
 
     fd = open("/tmp/mailsnatcher-chunk", O_RDONLY);
