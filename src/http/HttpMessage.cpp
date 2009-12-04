@@ -113,11 +113,17 @@ data[i+1]=='\x0a')){
         }
     }
     if(headersReady){
+        headersReady=false;
         stringstream ss;
         printf("i=%d,size=%d\n",i,data.size());
+        int k=i;
+        printf("START\n");
         for(;i<data.size();i++){
             body.push_back(data[i]);
+            if (body[i-k] >= ' ' && body[i-k] <= '~') printf("%c",body[i-k]);
+            else printf(".");
         }
+        printf("\nEND\n");
         std::map<std::string,std::string>::iterator 
         iter=headerTable.find(std::string("Content-Type"));
         if(iter!=headerTable.end()){
