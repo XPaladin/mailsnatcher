@@ -29,17 +29,17 @@ bool dechunk (const vector<char>& vec, stringstream& ss)
                 unsigned char idx = 0;
                 while ((iter) != vec.end()) {
                     byte = *iter++;
-                    printf("%02x ", byte);
+                    /* printf("%02x ", byte); */;
                     num[idx++] = byte;
                     crlf[0] = crlf[1];
                     crlf[1] = byte;
                     if (crlf[0] == 0x0d && crlf[1] == 0x0a) { break; }
                 }
-                printf("\n");
+                /* printf("\n"); */;
                 chunk_lft = strtoul(num, &endptr, 16);
-                printf("chunk_lft=%lu\n", chunk_lft);
+                /* printf("chunk_lft=%lu\n", chunk_lft); */;
                 if (endptr == num) { return false; }
-                if (chunk_lft == 0) { printf("siz=%lu\n", siz); return true; }
+                if (chunk_lft == 0) { /* printf("siz=%lu\n", siz); */; return true; }
                 siz += chunk_lft;
                 crlf[0] = crlf[1] = 0x00;
             } else {
@@ -71,7 +71,7 @@ void gunzip (stringstream& ss)
     writ = write(fd, ss.str().c_str(), ss.str().size());
     close(fd);
 
-    printf("writ=%lu\n", writ);
+    /* printf("writ=%lu\n", writ); */;
 
     ss.str("");
 
