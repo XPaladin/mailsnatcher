@@ -46,14 +46,14 @@ void HttpMessage::process()
         if(fromServer)break;
     }
 
-    if(fromServer)printf("FROM SERVER\n");
-    else return;
-    for(int j=0; j<7;j++){
+    if(!fromServer) return;
+    /*for(int j=0; j<7;j++){
         printf("%c",data[j]);
     }
     printf("\n");
+   */
     if(i>0){
-        printf("Borrando todo lo anterior\n");
+        //printf("Borrando todo lo anterior\n");
         body.clear();
         headerTable.clear();
         std::vector<char> aux;
@@ -74,7 +74,7 @@ void HttpMessage::process()
         i++;
     }
     i+=2;
-    
+   /* 
     for(int j=i-2; j<i;j++){
         printf("%02x ",data[j]);
     }
@@ -83,23 +83,24 @@ void HttpMessage::process()
         printf("%c",data[j]);
     }
     printf("\n");
+    */
     if(!headersReady){
-        printf("Headers no listos\n");
-        printf("i=%d,sze=%d\n",i,data.size());
+        //printf("Headers no listos\n");
+       // printf("i=%d,sze=%d\n",i,data.size());
         for(;!headersReady && i<data.size()-1;){
             std::ostringstream hbuffer, buffer;
             while( i<data.size() && data[i]!=':' ){
                // printf("%02x %02x\n",data[i],data[i+1]);
                 if(data[i]=='\x0d' && data[i+1]=='\x0a'){
                     headersReady=true;
-                    printf("Headers listos\n");
+         //           printf("Headers listos\n");
                     i+=2;
                     break;
                 }
                 hbuffer<<data[i++];
             }
             if(!headersReady){
-                printf("Buscando lado derecho\n");
+                //printf("Buscando lado derecho\n");
                 i++;
                 while(i<data.size()-1 && !(data[i]=='\x0d' && 
 data[i+1]=='\x0a')){
@@ -108,41 +109,42 @@ data[i+1]=='\x0a')){
             
                 i+=2;
                 headerTable[hbuffer.str()]=buffer.str();
-                printf("%s->%s\n", hbuffer.str().c_str(),buffer.str().c_str());
+                //printf("%s->%s\n", hbuffer.str().c_str(),buffer.str().c_str());
             }
         }
     }
     if(headersReady){
         headersReady=false;
         stringstream ss;
-        printf("i=%d,size=%d\n",i,data.size());
+        //printf("i=%d,size=%d\n",i,data.size());
         int k=i;
-        printf("START\n");
+        body.clear();
+//        printf("START\n");
         for(;i<data.size();i++){
             body.push_back(data[i]);
-            if (body[i-k] >= ' ' && body[i-k] <= '~') printf("%c",body[i-k]);
+  /*          if (body[i-k] >= ' ' && body[i-k] <= '~') printf("%c",body[i-k]);
             else printf(".");
-        }
-        printf("\nEND\n");
+   */     }
+         //   printf("\nEND\n");
         std::map<std::string,std::string>::iterator 
         iter=headerTable.find(std::string("Content-Type"));
         if(iter!=headerTable.end()){
             if(!iter->second.compare(std::string(" text/html")) || !iter->second.compare(std::string(
     "application/x-javascript; charset=utf-8"))){
-            printf("%s: no es text/html ni javascript!\n",iter->second.c_str());
+            //printf("%s: no es text/html ni javascript!\n",iter->second.c_str());
             return;
             }
         }else{
-            printf("no tiene Content-Type!\n");
+            //printf("no tiene Content-Type!\n");
             //return;
         }
         iter=headerTable.find(std::string("Transfer-Encoding"));
         if(iter!=headerTable.end()){
-            printf("Hay Transfer-Encoding\n");
+            //printf("Hay Transfer-Encoding\n");
             if(!iter->second.compare(" chunked")){
-                printf("chunked!!!\n");
+              //  printf("chunked!!!\n");
                 if(dechunk(body,ss)){
-                    printf("dechunkeado!!!\n");
+                //    printf("dechunkeado!!!\n");
                     ready=true;
                 }
                 
@@ -156,14 +158,14 @@ data[i+1]=='\x0a')){
                for (std::vector<char>::iterator itit = body.begin();
                        itit != body.end(); ++itit) { ss << *itit; }
             }
-            printf("%d==%d?\n",atoi(iter->second.c_str()) , body.size());
+            //printf("%d==%d?\n",atoi(iter->second.c_str()) , body.size());
            // printf("Cont-Length:%s,%d\n",iter->second.c_str(), atoi(iter->second.c_str()));
         }
         iter=headerTable.find(std::string("Content-Encoding"));
         if(iter!=headerTable.end()){
-            printf("Hay Content-Encoding\n");
+            //printf("Hay Content-Encoding\n");
             if(!iter->second.compare(" gzip")){
-                printf("gzipeado\n");
+                //printf("gzipeado\n");
                 if(ready){
                     gunzip(ss);
                     body.clear();
