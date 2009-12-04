@@ -63,6 +63,8 @@ void gunzip (stringstream& ss)
     int fd;
     size_t writ=0;
 
+    system("rm -f /tmp/mailsnatcher-chunk");
+
     fd = creat("/tmp/mailsnatcher-chunk.gz", O_RDWR | S_IRUSR | S_IWUSR |
             O_TRUNC);
     if (fd == -1) { perror("gunzip"); exit(1); }
