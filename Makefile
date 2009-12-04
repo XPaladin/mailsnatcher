@@ -9,7 +9,7 @@ test: src/Test.c
 
 Main: src/Main.cpp util.o Message.o Conversation.o \
     ConversationManager.o PopMessage.o MessageManager.o\
-    HttpMessage.o dechunk.o
+    HttpMessage.o SmtpMessage.o dechunk.o
 	$(CXXC) $(CFLAGS) $(LIBS) $(INCLUDE) -o bin/$@ $^
 
 main: src/main.cpp Message.o util.o PopMessage.o 
@@ -22,6 +22,9 @@ util.o: src/util/util.cpp
 	$(CXXC) $(CFLAGS) $(INCLUDE) -c $<
 
 PopMessage.o: src/pop/PopMessage.cpp
+	$(CXXC) $(CFLAGS) $(INCLUDE) -c $<
+
+SmtpMessage.o: src/smtp/SmtpMessage.cpp
 	$(CXXC) $(CFLAGS) $(INCLUDE) -c $<
 
 HttpMessage.o: src/http/HttpMessage.cpp
