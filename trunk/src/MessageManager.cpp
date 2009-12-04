@@ -7,6 +7,7 @@
 
 #include "MessageManager.h"
 #include "PopMessage.h"
+#include "SmtpMessage.h"
 #include "HttpMessage.h"
 #include <sstream>
 #include <stdio.h>
@@ -29,6 +30,11 @@ void MessageManager::insert(int client_ip, short client_port,
 
 	if( iter == messageTable.end() ){
 		switch(server_port){
+		case 25:
+//			fprintf(stderr,"pop:%d\n",server_port);
+			m=new SmtpMessage(server_ip, server_port,
+				client_ip, client_port);
+			break;
 		case 110:
 //			fprintf(stderr,"pop:%d\n",server_port);
 			m=new PopMessage(server_ip, server_port,

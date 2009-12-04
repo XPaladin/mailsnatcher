@@ -8,11 +8,11 @@
 
 #define Ethernet_len 14
 
-short Server_ports[] = {110,80};
+short Server_ports[] = {110,80,25};
 
 bool is_server(short port){
 	int i;
-	for(i=0; i<2 ; i++)
+	for(i=0; i<3 ; i++)
 	{
 		if(port==Server_ports[i])return true;
 	}
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     char *dev=NULL;                      /* The device to sniff on */
     char errbuf[PCAP_ERRBUF_SIZE];  /* Error string */
     struct bpf_program fp;          /* The compiled filter */
-    char filter_exp[] = "port 110 or src port 80"; /* The filter expression */
+    char filter_exp[] = "port 25 or port 110 or src port 80"; /* The filter expression */
     bpf_u_int32 mask;               /* Our netmask */
     bpf_u_int32 net;                /* Our IP */
     struct pcap_pkthdr header;      /* The header that pcap gives us */
