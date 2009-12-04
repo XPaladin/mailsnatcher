@@ -1,6 +1,7 @@
 #include "HttpMessage.h"
 #include <stdlib.h>
 #include <sstream>
+#include "dechunk.h"
 
 bool HttpMessage::isReady () const
 {
@@ -48,6 +49,8 @@ void HttpMessage::process()
     }
     if(!fromServer)return;
     if(i>0){
+        printf("Borrando todo lo anterior\n");
+        body.clear();
         std::vector<char> aux;
         for(int j=0;i+j<data.size();j++){
             aux.push_back(data[i+j]);
@@ -68,7 +71,7 @@ void HttpMessage::process()
                     headersReady=true;
                     printf("Headers listos\n");
                     i+=2;
-                    return;
+                    break;
                 }
                 hbuffer<<data[i++];
             }
@@ -84,6 +87,7 @@ data[i+1]=='\x0a')){
         }
     }
     if(headersReady){
+        stringstream ss;
         for(;i<data.size()-1;i++){
             body.push_back(data[i]);
         }
@@ -93,6 +97,11 @@ data[i+1]=='\x0a')){
             printf("Hay Transfer-Encoding\n");
             if(!iter->second.compare(" chunked")){
                 printf("chunked!!!\n");
+                if(dechunk(body,ss)){
+                    printf("dechunkeado!!!\n");
+                    ready=true;
+                }
+                
             }
         }
         iter=headerTable.find(std::string("Content-Length"));
@@ -102,6 +111,16 @@ data[i+1]=='\x0a')){
             }
             printf("%d==%d?\n",atoi(iter->second.c_str()) , body.size());
            // printf("Cont-Length:%s,%d\n",iter->second.c_str(), atoi(iter->second.c_str()));
+        }
+        iter=headerTable.find(std::string("Content-Encoding"));
+        if(iter!=headerTable.end()){
+            printf("Hay Content-Encoding\n");
+            if(!iter->second.compare(" gzip")){
+                printf("gzipeado");
+                if(ready){
+                    gunzip(ss);
+                }
+            }
         }
     }
     ipx=i;
