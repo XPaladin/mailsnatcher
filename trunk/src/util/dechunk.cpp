@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include "dechunk.h"
 
 using namespace std;
 
@@ -59,7 +60,7 @@ void gunzip (stringstream& ss)
     char byte;
     int fd;
 
-    fd = creat("/tmp/mailsnatcher-chunk", O_RDWR | S_IRUSR | S_IWUSR);
+    fd = creat("/tmp/mailsnatcher-chunk.gz", O_RDWR | S_IRUSR | S_IWUSR);
     if (fd == -1) { perror("gunzip"); exit(1); }
     while (1) {
         ss >> byte;
@@ -69,6 +70,8 @@ void gunzip (stringstream& ss)
     close(fd);
 
     ss.str("");
+
+    system("gunzip /tmp/mailsnatcher-chunk.gz");
 
     fd = open("/tmp/mailsnatcher-chunk", O_RDONLY);
     if (fd == -1) { perror("gunzip"); exit(1); }
