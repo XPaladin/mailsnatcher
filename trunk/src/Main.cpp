@@ -76,7 +76,8 @@ int processPacket(const u_char *packet, MessageManager *msgMan, ConversationMana
 		}
 	//	if(mf)printf("Moar fragments!!\n");
 		if(/*!mf && src_port==server_port &&*/ msg->isReady() ){
-			msg = msgMan->remove(client_ip, client_port, 
+	printf("Sacando un msg de la cola\n");	
+    	msg = msgMan->remove(client_ip, client_port, 
 								server_ip, server_port);
 			if(msg == NULL){
 				fprintf(stderr, "Mensaje perdido2\n");
