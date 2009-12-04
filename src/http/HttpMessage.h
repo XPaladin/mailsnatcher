@@ -35,6 +35,8 @@ class HttpMessage:
         virtual void append (const unsigned char* cdata, 
 			const size_t len);
         ~HttpMessage () { }
+        char* getBytes() const;
+        size_t getLength() const;
 
 };
 
