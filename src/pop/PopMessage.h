@@ -23,11 +23,6 @@ class PopMessage:
         ~PopMessage () { }
 
         bool isReady () const;
-        bool isFromServer () const
-        {
-            if (data.size() > 0) { return data.front() == '+'; }
-            return false;
-        }
 };
 
 #endif /* POP_MESSAGE */
