@@ -48,8 +48,8 @@ class Message
 
         virtual bool isReady () const =0;
 
-        size_t getLength () const { return data.size(); }
-        char* getBytes () const;
+        virtual size_t getLength () const { return data.size(); }
+        virtual char* getBytes () const;
 
         unsigned int getServerIp () const { return serverIp; }
         unsigned short getServerPort () const { return serverPort; }

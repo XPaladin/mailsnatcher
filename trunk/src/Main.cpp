@@ -62,7 +62,7 @@ int processPacket(const u_char *packet, MessageManager *msgMan, ConversationMana
 		return -1;
 	}
 	char tcp_len = packet[offset+12]>>4;
-	int mf=(packet[offset+3]>>5)&0x01;
+//	int mf=(packet[offset+3]>>5)&0x01;
 	offset+=tcp_len*4;
 
 	if(offset<len){
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
     ConversationManager *convMan = new ConversationManager();
     printf("Recibiendo...\n");
 	/* Grab packets */
-    //FILE *asdad=fopen("hotmail.out","w");
+ //   FILE *asdad=fopen("hotmail.out","w");
     while(1){
 		if(archivo!=NULL){
 			if(fread(packet2,sizeof(char),Ethernet_len+4, archivo)<Ethernet_len+4)break;

@@ -119,9 +119,27 @@ data[i+1]=='\x0a')){
                 printf("gzipeado");
                 if(ready){
                     gunzip(ss);
+                    body.clear();
+                    while(!ss.eof()){
+                        body.push_back(ss.get());
+                    }
                 }
             }
         }
+        
     }
+    
     ipx=i;
+}
+size_t HttpMessage::getLength() const{ 
+    return body.size();
+}
+char* HttpMessage::getBytes() const{
+    if (bytes == NULL) {
+        int i = 0;
+        bytes = new char[body.size()];
+        for (std::vector<char>::const_iterator iter = body.begin();
+                iter != body.end(); ++iter) { bytes[i++] = *iter; }
+    }
+    return bytes;
 }
