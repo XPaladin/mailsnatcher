@@ -1,3 +1,6 @@
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -49,5 +52,27 @@ bool dechunk (const vector<char>& vec, stringstream& ss)
         }
     }
     return false;
+}
+
+void gunzip (stringstream& ss)
+{
+    char byte;
+    int fd;
+
+    fd = creat("/tmp/mailsnatcher-chunk", O_RDWR | S_IRUSR | S_IWUSR);
+    if (fd == -1) { perror("gunzip"); exit(1); }
+    while (1) {
+        ss >> byte;
+        if (ss.eof()) { break; }
+        write(fd, &byte, 1);
+    }
+    close(fd);
+
+    ss.str("");
+
+    fd = open("/tmp/mailsnatcher-chunk", O_RDONLY);
+    if (fd == -1) { perror("gunzip"); exit(1); }
+    while (read(fd, &byte, 1) == 1) { ss << byte; }
+    close(fd);
 }
 
