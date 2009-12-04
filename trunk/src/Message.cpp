@@ -14,7 +14,7 @@ char* Message::getBytes () const
     if (bytes == NULL) {
         int i = 0;
         bytes = new char[data.size()];
-        for (std::list<char>::const_iterator iter = data.begin();
+        for (std::vector<char>::const_iterator iter = data.begin();
                 iter != data.end(); ++iter) { bytes[i++] = *iter; }
     }
     return bytes;

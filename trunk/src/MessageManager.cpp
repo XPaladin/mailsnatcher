@@ -7,6 +7,7 @@
 
 #include "MessageManager.h"
 #include "PopMessage.h"
+#include "HttpMessage.h"
 #include <sstream>
 #include <stdio.h>
 MessageManager::MessageManager() {
@@ -29,12 +30,18 @@ void MessageManager::insert(int client_ip, short client_port,
 	if( iter == messageTable.end() ){
 		switch(server_port){
 		case 110:
-			m=new PopMessage(client_ip, client_port,
-				server_ip, server_port);
+//			fprintf(stderr,"pop:%d\n",server_port);
+			m=new PopMessage(server_ip, server_port,
+				client_ip, client_port);
+			break;
+		case 80:
+//			fprintf(stderr,"Http:%d\n",server_port);
+			m=new HttpMessage(server_ip, server_port,
+				client_ip, client_port);
 			break;
 		default: 
                         /* ¡No se puede instanciar una clase virtual! */
-			fprintf(stderr,"Protocolo no entendido:%d",server_port);
+			fprintf(stderr,"Protocolo no entendido:%d\n",server_port);
                         return;
                 }
 	}else{

@@ -58,7 +58,7 @@ int processPacket(const u_char *packet, MessageManager *msgMan, ConversationMana
 		server_port = src_port;
 		client_port = dst_port;
 	}else{
-		fprintf(stderr, "Protocolo no entendido:%d,%d,%x,%x\n",dst_port,src_port,dst_port,src_port);
+		fprintf(stderr, "Protocolo no entendido:%d,%d\n",dst_port,src_port);
 		return -1;
 	}
 	char tcp_len = packet[offset+12]>>4;
@@ -75,7 +75,7 @@ int processPacket(const u_char *packet, MessageManager *msgMan, ConversationMana
 			return -2;
 		}
 	//	if(mf)printf("Moar fragments!!\n");
-		if(!mf && src_port==server_port && msg->isReady() ){
+		if(/*!mf && src_port==server_port &&*/ msg->isReady() ){
 			msg = msgMan->remove(client_ip, client_port, 
 								server_ip, server_port);
 			if(msg == NULL){
@@ -92,7 +92,7 @@ int processPacket(const u_char *packet, MessageManager *msgMan, ConversationMana
 	}
 
 
-	for(i=offset; i<len; i++){
+/*	for(i=offset; i<len; i++){
 		if(isprint(packet[i]) )
 			printf("%c",packet[i]);
 		else
@@ -105,7 +105,7 @@ int processPacket(const u_char *packet, MessageManager *msgMan, ConversationMana
 //		if(i%4==0)printf(" ");
 
 	}
-	printf("\n");
+*/	printf("\n");
 	return 0;
 }
 int main(int argc, char *argv[])
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
     char *dev=NULL;                      /* The device to sniff on */
     char errbuf[PCAP_ERRBUF_SIZE];  /* Error string */
     struct bpf_program fp;          /* The compiled filter */
-    char filter_exp[] = "port 110 or port 80"; /* The filter expression */
+    char filter_exp[] = "port 110 or src port 80"; /* The filter expression */
     bpf_u_int32 mask;               /* Our netmask */
     bpf_u_int32 net;                /* Our IP */
     struct pcap_pkthdr header;      /* The header that pcap gives us */
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
     ConversationManager *convMan = new ConversationManager();
     printf("Recibiendo...\n");
 	/* Grab packets */
-	//FILE *asdad=fopen("hotmail.out","w");
+    //FILE *asdad=fopen("hotmail.out","w");
     while(1){
 		if(archivo!=NULL){
 			if(fread(packet2,sizeof(char),Ethernet_len+4, archivo)<Ethernet_len+4)break;
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
 			 do{
             packet =(u_char*) pcap_next(handle, &header);
         	}while(packet==NULL);
-			//fwrite(packet,sizeof(char),header.len,asdad);
+//			fwrite(packet,sizeof(char),header.len,asdad);
 			processPacket(packet, msgMan, convMan);
 		}
     }

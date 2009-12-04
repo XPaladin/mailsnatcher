@@ -11,12 +11,12 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include <list>
+#include <vector>
 
 class Message
 {
     protected:
-        std::list<char> data;
+        std::vector<char> data;
         unsigned int serverIp;
         unsigned short serverPort;
         unsigned int clientIp;
@@ -47,7 +47,6 @@ class Message
         }
 
         virtual bool isReady () const =0;
-        virtual bool isFromServer () const =0;
 
         size_t getLength () const { return data.size(); }
         char* getBytes () const;
